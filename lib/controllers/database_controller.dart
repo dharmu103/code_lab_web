@@ -11,21 +11,31 @@ import '../services/remote_services.dart';
 class DatabaseController extends GetxController {
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
-  RxInt pageNo = 10.obs;
+  RxInt pageNo = 0.obs;
   List<StoreModel> stores = [];
   List<CountryModel> countryList = [];
+  List<CountryModel> countryList1 = [];
   StoreList storeList = StoreList();
+  String? error = '';
 
   String? currentCuntry;
   String? currentStore;
 
   login(map) async {
+    error = "";
+    update();
     var res = await RemoteService.loginWithEmailandPassword(
         {"email": email.text.trim(), "password": password.text});
 
     if (res == "") {
       Get.offAll(DashboardScreen());
+    } else {
+      print(res);
+      error = res;
+      Get.snackbar("Error", res.toString(),
+          backgroundColor: Colors.red, colorText: Colors.white);
     }
+    update();
   }
 
   addDataFormPage() {
@@ -59,25 +69,43 @@ class DatabaseController extends GetxController {
   }
 
   backPage() {
-    pageNo.value = pageNo.value - 1;
-    if (pageNo.value == 1) {
-      currentStore = null;
-    }
     if (pageNo.value == 0) {
-      currentCuntry = null;
+    } else {
+      update();
+      print('${pageNo.value} ye page no hai');
+      if (pageNo > 9) {
+        pageNo.value = pageNo.value - 10;
+      } else {
+        pageNo.value = pageNo.value - 1;
+      }
+      if (pageNo.value == 1) {
+        currentStore = null;
+      }
+      if (pageNo.value == 0) {
+        currentCuntry = null;
+      }
     }
     update();
   }
 
   Future<List<CountryModel>?> fatchCountry() async {
+    print("this country run");
     var res = await RemoteService.fatchCountry();
-    print(res);
-    print(res.countryList![0].countryName);
-    return res.countryList;
+    print(res.countryList?.length);
+    print(res.countryList![1].countryName);
+    res.countryList!.forEach((element) {
+      print('${element.countryName}----------------------');
+      if (element.countryName!.isNotEmpty) {
+        countryList1.add(element);
+      }
+    });
+    print(countryList1.length);
+    return countryList1;
   }
 
   Future<StoreList?> fatchStore() async {
-    print("fatch store run");
+    print("fatch store run $currentCuntry");
+
     var res = await RemoteService.fatchStores(currentCuntry!);
     // print(res!.stores!.length);
     return res;
@@ -85,7 +113,7 @@ class DatabaseController extends GetxController {
 
   Future<DealsList?> fatchDeals() async {
     print("fatch deals run");
-    var res = await RemoteService.fatchDeals("");
+    var res = await RemoteService.fatchDeals(currentStore!);
     // print(res!.stores!.length);
     return res;
   }

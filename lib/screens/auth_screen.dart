@@ -41,6 +41,22 @@ class AuthScreen extends StatelessWidget {
             const SizedBox(
               height: defaultPadding,
             ),
+            GetBuilder<DatabaseController>(
+              initState: (_) {},
+              builder: (_) {
+                return Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        controller.error.toString(),
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
             SizedBox(
                 width: Get.width,
                 height: kTextTabBarHeight,

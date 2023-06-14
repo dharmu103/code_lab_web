@@ -12,7 +12,7 @@ DealsModel _$DealsModelFromJson(Map<String, dynamic> json) => DealsModel(
       name: json['name'] as String?,
       arabicName: json['name_arabic'] as String?,
       description: json['description'] as String?,
-      arabicDescription: json['arabicDescription'] as String?,
+      arabicDescription: json['description_arabic'] as String?,
       coupon: json['coupon'] as String?,
       image: json['image'] as String?,
       link: json['link'] as String?,

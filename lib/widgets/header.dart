@@ -1,9 +1,12 @@
 // import 'package:admin/controllers/MenuAppController.dart';
 // import 'package:admin/responsive.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:flutter_svg/flutter_svg.dart';
 
 import '../constant/constant.dart';
+import '../screens/auth_screen.dart';
 
 class Header extends StatelessWidget {
   const Header({
@@ -29,7 +32,24 @@ class Header extends StatelessWidget {
           // if (!Responsive.isMobile(context))
           //   Spacer(flex: Responsive.isDesktop(context) ? 2 : 1),
           // // const Expanded(child: SearchField()),
-          const ProfileCard()
+          // const ProfileCard()
+          Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+            Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: Container(
+                child: ElevatedButton(
+                    onPressed: () async {
+                      final pres = await SharedPreferences.getInstance();
+                      pres.clear();
+                      Get.offAll(AuthScreen());
+                    },
+                    child: const Text("Logout")),
+              ),
+            ),
+            SizedBox(
+              width: defaultPadding * 2,
+            )
+          ])
         ],
       ),
     );
