@@ -41,6 +41,10 @@ dependencies:
   http: ^1.0.0
   shared_preferences: ^2.1.2
   firebase_core: ^2.14.0
+  progress_state_button: ^1.0.4
+  flutter_dropzone: ^3.0.5
+  dotted_border: ^2.0.0+3
+  universal_io: ^2.2.2
 
 dev_dependencies:
   flutter_test:

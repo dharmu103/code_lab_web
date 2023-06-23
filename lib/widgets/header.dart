@@ -41,12 +41,12 @@ class Header extends StatelessWidget {
                     onPressed: () async {
                       final pres = await SharedPreferences.getInstance();
                       pres.clear();
-                      Get.offAll(AuthScreen());
+                      Get.offAll(const AuthScreen());
                     },
                     child: const Text("Logout")),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               width: defaultPadding * 2,
             )
           ])

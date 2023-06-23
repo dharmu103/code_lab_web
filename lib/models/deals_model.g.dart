@@ -7,8 +7,8 @@ part of 'deals_model.dart';
 // **************************************************************************
 
 DealsModel _$DealsModelFromJson(Map<String, dynamic> json) => DealsModel(
-      id: json['id'] as String?,
-      storeId: json['storeId'] as String?,
+      id: json['_id'] as String?,
+      storeId: json['store'] as String?,
       name: json['name'] as String?,
       arabicName: json['name_arabic'] as String?,
       description: json['description'] as String?,

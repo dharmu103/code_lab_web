@@ -1,10 +1,13 @@
 import 'package:code_lab_web/controllers/database_controller.dart';
 import 'package:code_lab_web/models/deals_list.dart';
 import 'package:code_lab_web/models/store_list.dart';
-import 'package:code_lab_web/services/remote_services.dart';
+import 'package:code_lab_web/screens/banner_screen.dart';
+import 'package:code_lab_web/widgets/custom_button.dart';
 import 'package:code_lab_web/widgets/text_fields.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:progress_state_button/progress_button.dart';
 
 import '../constant/constant.dart';
 import '../models/country_model.dart';
@@ -27,7 +30,7 @@ class DatabaseScreen extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: Material(
         child: Column(
-          // mainAxisSize: MainAxisSize.max,
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -90,7 +93,7 @@ class DatabaseScreen extends StatelessWidget {
                 return const AddCountryForm();
               }
               if (_.pageNo.value == 2) {
-                return Container(
+                return SizedBox(
                   width: Get.width * 0.8,
                   child: FutureBuilder<DealsList?>(
                       future: controller.fatchDeals(),
@@ -227,28 +230,35 @@ class _AddCountryFormState extends State<AddCountryForm> {
           const SizedBox(
             height: 30,
           ),
-          Container(
+          // BannerScreen(),
+          SizedBox(
               width: 500,
               height: 40,
-              child: ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      // print("------------");
-                      // print(countryController.text);
-                      var res = await RemoteService.addCountry(
-                          {"name": countryController.text});
-                      print(res);
-                      if (res == "Success") {
-                        Get.defaultDialog(
-                            title: "Successfully Added",
-                            content: Text(
-                                "${countryController.text} added in Database"));
-                      }
-                    } else {
-                      print("Not Validate");
-                    }
-                  },
-                  child: const Text("Add to DB"))),
+              child: GetBuilder<DatabaseController>(
+                init: DatabaseController(),
+                initState: (_) {},
+                builder: (_) {
+                  return PrimaryButton(
+                    state: _.btnState,
+                    onpress: () async {
+                      if (_formKey.currentState!.validate()) {
+                        Get.dialog(const Center(
+                          child: CircularProgressIndicator(),
+                        ));
+                        var res = await _
+                            .addCountry({"name": countryController.text});
+                        Get.back();
+                        if (res == "Success") {
+                          await Future.delayed(const Duration(seconds: 2));
+                          _.backPage();
+                          _.btnState = ButtonState.idle;
+                        }
+                      } else {}
+                    },
+                    text: "Add to DB",
+                  );
+                },
+              )),
           const SizedBox(
             height: 30,
           ),
@@ -271,9 +281,9 @@ class _AddStoreFormState extends State<AddStoreForm> {
   TextEditingController linkController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    final _formKey2 = GlobalKey<FormState>();
+    final formKey2 = GlobalKey<FormState>();
     return Form(
-      key: _formKey,
+      key: formKey2,
       child: Column(
         children: [
           const SizedBox(
@@ -300,38 +310,44 @@ class _AddStoreFormState extends State<AddStoreForm> {
           const SizedBox(
             height: 30,
           ),
-          Container(
+          BannerScreen(),
+          SizedBox(
               width: 500,
               height: 40,
-              child: ElevatedButton(
-                  onPressed: () async {
-                    if (storenameController.text != "" ||
-                        nameArabicController.text != "" ||
-                        linkController.text != "") {
-                      print("------------");
-                      print(nameArabicController.text);
-                      var res = await RemoteService.addStore({
-                        "country": "UAE",
-                        "name": storenameController.text,
-                        "name_arabic": nameArabicController.text,
-                        "link": linkController.text,
-                        "tags": []
-                      });
-                      print(res);
-                      if (res == "Success") {
-                        Get.defaultDialog(
-                            title: "Successfully Added",
-                            content: Text(
-                                "${storenameController.text} added in Database"));
-                      }
-                    } else {
-                      print("Not Validate");
-                      Get.defaultDialog(
-                          title: "Error",
-                          content: Text("Not added in Database"));
-                    }
-                  },
-                  child: const Text("Add to DB"))),
+              child: GetBuilder<DatabaseController>(
+                init: DatabaseController(),
+                initState: (_) {},
+                builder: (_) {
+                  return PrimaryButton(
+                      state: _.btnState,
+                      onpress: () async {
+                        if (formKey2.currentState!.validate()) {
+                          Get.dialog(const Center(
+                            child: CircularProgressIndicator(),
+                          ));
+                          var res = await _.addStore({
+                            "country": _.currentCuntry,
+                            "name": storenameController.text,
+                            "name_arabic": nameArabicController.text,
+                            "link": linkController.text,
+                            "tags": []
+                          });
+                          Get.back();
+                          if (res == "Success") {
+                            await Future.delayed(const Duration(seconds: 2));
+                            _.backPage();
+                            _.btnState = ButtonState.idle;
+                          }
+                        } else {
+                          Get.defaultDialog(
+                              title: "Error",
+                              titleStyle: const TextStyle(color: Colors.red),
+                              content: const Text("Not added in Database"));
+                        }
+                      },
+                      text: "Add to DB");
+                },
+              )),
           const SizedBox(
             height: 30,
           ),
@@ -358,8 +374,9 @@ class _AddDealFormState extends State<AddDealForm> {
   TextEditingController desArabicController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final _formKeyDeal = GlobalKey<FormState>();
     return Form(
-      key: _formKey,
+      key: _formKeyDeal,
       child: Column(
         children: [
           const SizedBox(
@@ -407,46 +424,62 @@ class _AddDealFormState extends State<AddDealForm> {
           const SizedBox(
             height: 30,
           ),
-          Container(
+          BannerScreen(),
+          SizedBox(
               width: 500,
               height: 40,
               child: GetBuilder<DatabaseController>(builder: (_) {
-                return ElevatedButton(
-                    onPressed: () async {
-                      if (dealLinkController.text != "" ||
-                          dealnamArabiceController.text != "" ||
-                          dealLinkController.text != "" ||
-                          desArabicController.text != "" ||
-                          desController.text != "" ||
-                          dealnamArabiceController.text != "" ||
-                          dealnameController.text != "") {
-                        print("------------");
-                        print(dealLinkController.text);
-                        var res = await RemoteService.addDeals({
-                          "store": _.currentStore,
-                          "name": dealnameController.text,
-                          "name_arabic": dealnamArabiceController.text,
-                          "link": dealLinkController.text,
-                          "tags": [],
-                          "coupon": couponController.text,
-                          "description": desController.text,
-                          "description_arabic": desArabicController.text
-                        });
-                        print(res);
-                        if (res == "Success") {
-                          Get.defaultDialog(
-                              title: "Successfully Added",
-                              content: Text(
-                                  "${dealnameController.text} added in Database"));
-                        }
-                      } else {
-                        print("Not Validate");
-                        Get.defaultDialog(
-                            title: "Error",
-                            content: const Text("Not added in Database"));
+                // return ElevatedButton(
+                // onPressed: () async {
+                //   if (_formKeyDeal.currentState!.validate()) {
+                //     var res = await RemoteService.addDeals({
+                //       "store": _.currentStore,
+                //       "name": dealnameController.text,
+                //       "name_arabic": dealnamArabiceController.text,
+                //       "link": dealLinkController.text,
+                //       "tags": [],
+                //       "coupon": couponController.text,
+                //       "description": desController.text,
+                //       "description_arabic": desArabicController.text
+                //     });
+                //     if (res == "Success") {
+                //       Get.defaultDialog(
+                //           title: "Successfully Added",
+                //           content: Text(
+                //               "${dealnameController.text} added in Database"));
+                //     }
+                //   }
+                // },
+                //     child: const Text("Add to DB"));
+                return PrimaryButton(
+                  text: "Add to DB",
+                  state: _.btnState,
+                  onpress: () async {
+                    if (_formKeyDeal.currentState!.validate()) {
+                      Get.dialog(const Center(
+                        child: CircularProgressIndicator(),
+                      ));
+                      var res = await _.addDeals({
+                        "store": _.currentStore,
+                        "name": dealnameController.text,
+                        "name_arabic": dealnamArabiceController.text,
+                        "link": dealLinkController.text,
+                        "tags": [],
+                        "coupon": couponController.text,
+                        "description": desController.text,
+                        "description_arabic": desArabicController.text
+                      });
+                      Get.back();
+                      if (res == "Success") {
+                        await Future.delayed(const Duration(seconds: 2));
+                        _.backPage();
+                        _.btnState = ButtonState.idle;
+
+                        _formKeyDeal.currentState!.reset();
                       }
-                    },
-                    child: const Text("Add to DB"));
+                    }
+                  },
+                );
               })),
           const SizedBox(
             height: 30,
@@ -457,87 +490,192 @@ class _AddDealFormState extends State<AddDealForm> {
   }
 }
 
-Widget storeTableWidget(StoreList storeList) => Container(
+Widget storeTableWidget(StoreList storeList) => SizedBox(
       width: Get.width * 0.8,
-      child: DataTable(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: DataTable(
 
-          // columnSpacing: defaultPadding,
-
-          columns: const [
-            DataColumn(label: Text("Store")),
-            DataColumn(label: Text("Arabic Name")),
-            DataColumn(label: Text("")),
-            DataColumn(label: Text("Link"))
-          ],
-          rows: List.generate(
-              storeList.stores!.length,
-              (index) => DataRow(
-                      onLongPress: () {
-                        Get.find<DatabaseController>()
-                            .nextDealsPage(storeList.stores![index]);
-                      },
-                      cells: [
-                        DataCell(
-                          Text(
-                            storeList.stores![index].name.toString(),
+            // columnSpacing: defaultPadding,
+            border: TableBorder(
+              borderRadius: BorderRadius.circular(5),
+            ),
+            headingRowColor: MaterialStateColor.resolveWith(
+                (states) => Colors.grey.shade200),
+            headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
+            // dataRowColor: MaterialStateColor.resolveWith(
+            //     (states) => Colors.grey.shade100),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5),
+                boxShadow: const [
+                  BoxShadow(
+                      blurRadius: 0.2, spreadRadius: 0.5, color: Colors.grey)
+                ]),
+            columns: const [
+              DataColumn(label: Text("Store")),
+              DataColumn(label: Text("Arabic Name")),
+              DataColumn(label: Text("Country")),
+              DataColumn(label: Text("Link")),
+              DataColumn(label: Text("")),
+            ],
+            rows: List.generate(
+                storeList.stores!.length,
+                (index) => DataRow(
+                        onSelectChanged: (v) {
+                          Get.find<DatabaseController>()
+                              .nextDealsPage(storeList.stores![index]);
+                        },
+                        cells: [
+                          DataCell(
+                            Text(
+                              storeList.stores![index].name.toString(),
+                            ),
                           ),
-                        ),
-                        DataCell(
-                          Text(
-                            storeList.stores![index].arabicName.toString(),
+                          DataCell(
+                            Text(
+                              storeList.stores![index].arabicName.toString(),
+                            ),
                           ),
-                        ),
-                        DataCell(
-                          Text(
-                            storeList.stores![index].country.toString(),
+                          DataCell(
+                            Text(
+                              storeList.stores![index].country.toString(),
+                            ),
                           ),
-                        ),
-                        DataCell(
-                          Text(
-                            storeList.stores![index].link.toString(),
+                          DataCell(
+                            Text(
+                              storeList.stores![index].link.toString(),
+                            ),
                           ),
-                        ),
-                      ]))),
+                          DataCell(Row(
+                            children: [
+                              const Spacer(),
+                              IconButton(
+                                icon: const Icon(
+                                  CupertinoIcons.delete,
+                                  size: 16,
+                                ),
+                                onPressed: () async {
+                                  Get.dialog(const Center(
+                                      child: CircularProgressIndicator()));
+                                  String? res =
+                                      await Get.find<DatabaseController>()
+                                          .removeStore({
+                                    "store": storeList.stores![index].id
+                                  });
+                                  if (res == 'Success') {
+                                    Get.back();
+                                  } else {
+                                    Get.defaultDialog(title: "Error");
+                                  }
+                                },
+                              ),
+                            ],
+                          ))
+                        ]))),
+      ),
     );
-Widget countryTableWidget(List<CountryModel> countryList) =>
-    SingleChildScrollView(
-//       // width: Get.width * 0.8,
-//       // height: Get.height,
+Widget countryTableWidget(List<CountryModel> countryList) => SizedBox(
+      width: Get.width * 0.8,
+      // height: Get.height,
 //       child: SingleChildScrollView(
 //         scrollDirection: Axis.vertical,
-      child: DataTable(
-          columnSpacing: defaultPadding,
-          columns: const [
-            DataColumn(label: Text("Country")),
-          ],
-          rows: List.generate(
-              countryList.length,
-              (index) => DataRow(
-                      onLongPress: () {
-                        Get.find<DatabaseController>()
-                            .nextPage(countryList[index]);
-                      },
-                      cells: [
-                        DataCell(
-                          Text(countryList[index].countryName.toString()),
-                        ),
-                      ]))),
+
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: DataTable(
+            border: TableBorder(
+              borderRadius: BorderRadius.circular(5),
+            ),
+            headingRowColor: MaterialStateColor.resolveWith(
+                (states) => Colors.grey.shade200),
+            headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
+            // dataRowColor: MaterialStateColor.resolveWith(
+            //     (states) => Colors.grey.shade100),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5),
+                boxShadow: const [
+                  BoxShadow(
+                      blurRadius: 0.2, spreadRadius: 0.5, color: Colors.grey)
+                ]),
+            columns: const [
+              DataColumn(label: Text("Country")),
+              DataColumn(label: Text("")),
+            ],
+            rows: List.generate(
+                countryList.length,
+                (index) => DataRow(
+                        // onLongPress: () {
+                        //   Get.find<DatabaseController>()
+                        //       .nextPage(countryList[index]);
+                        // },
+                        onSelectChanged: (v) {
+                          Get.find<DatabaseController>()
+                              .nextPage(countryList[index]);
+                        },
+                        cells: [
+                          DataCell(
+                            Text(countryList[index].countryName.toString()),
+                          ),
+                          DataCell(Row(
+                            children: [
+                              const Spacer(),
+                              IconButton(
+                                icon: const Icon(
+                                  CupertinoIcons.delete,
+                                  size: 16,
+                                ),
+                                onPressed: () async {
+                                  Get.dialog(const Center(
+                                      child: CircularProgressIndicator()));
+                                  String? res =
+                                      await Get.find<DatabaseController>()
+                                          .removeCountry({
+                                    "name": countryList[index].countryName
+                                  });
+                                  if (res == 'Success') {
+                                    Get.back();
+                                  } else {
+                                    Get.defaultDialog(title: "Error");
+                                  }
+                                },
+                              ),
+                            ],
+                          ))
+                        ]))),
+      ),
       // ),
     );
 
-Widget dealsTableWidget(DealsList dealsList) => Container(
+Widget dealsTableWidget(DealsList dealsList) => SizedBox(
       width: Get.width * 0.8,
       child: DataTable(
 
           // columnSpacing: defaultPadding,
-
+          border: TableBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
+          headingRowColor:
+              MaterialStateColor.resolveWith((states) => Colors.grey.shade200),
+          headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
+          // dataRowColor: MaterialStateColor.resolveWith(
+          //     (states) => Colors.grey.shade100),
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5),
+              boxShadow: const [
+                BoxShadow(
+                    blurRadius: 0.2, spreadRadius: 0.5, color: Colors.grey)
+              ]),
           columns: const [
             DataColumn(label: Text("Name")),
             DataColumn(label: Text("Name Arabic")),
             DataColumn(label: Text("Description")),
             DataColumn(label: Text("Description Arabic")),
             DataColumn(label: Text("Coupon")),
-            DataColumn(label: Text("Link"))
+            DataColumn(label: Text("Link")),
+            DataColumn(label: Text("")),
           ],
           rows: List.generate(
               dealsList.dealsList!.length,
@@ -583,5 +721,30 @@ Widget dealsTableWidget(DealsList dealsList) => Container(
                             dealsList.dealsList![index].link.toString(),
                           ),
                         ),
+                        DataCell(Row(
+                          children: [
+                            const Spacer(),
+                            IconButton(
+                              icon: const Icon(
+                                CupertinoIcons.delete,
+                                size: 16,
+                              ),
+                              onPressed: () async {
+                                Get.dialog(const Center(
+                                    child: CircularProgressIndicator()));
+                                String? res =
+                                    await Get.find<DatabaseController>()
+                                        .removeDeal({
+                                  "deal": dealsList.dealsList![index].id
+                                });
+                                if (res == 'Success') {
+                                  Get.back();
+                                } else {
+                                  Get.defaultDialog(title: "Error");
+                                }
+                              },
+                            ),
+                          ],
+                        ))
                       ]))),
     );
