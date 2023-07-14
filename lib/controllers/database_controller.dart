@@ -1,4 +1,5 @@
 import 'package:code_lab_web/models/deals_list.dart';
+import 'package:code_lab_web/models/deals_model.dart';
 import 'package:code_lab_web/models/store_list.dart';
 import 'package:code_lab_web/models/store_model.dart';
 import 'package:code_lab_web/models/users_list.dart';
@@ -7,6 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:progress_state_button/progress_button.dart';
 
+import '../models/banner_list_model.dart';
+import '../models/carousel_list.dart';
+import '../models/categoriesList.dart';
 import '../models/country_model.dart';
 import '../services/remote_services.dart';
 
@@ -20,9 +24,20 @@ class DatabaseController extends GetxController {
   List<CountryModel> countryList1 = [];
   StoreList storeList = StoreList();
   String? error = '';
-
+  CategoriesList? categories = CategoriesList();
   String? currentCuntry;
   String? currentStore;
+  String? currentStoreTitle;
+
+  Rx<DealsModel?> updateFormDealData = DealsModel().obs;
+  Rx<StoreModel?> uploadFormStoreData = StoreModel().obs;
+  Rx<CountryModel> updateFormCountryData = CountryModel().obs;
+
+  @override
+  onInit() {
+    fatchCatagory();
+    super.onInit();
+  }
 
   login(map) async {
     btnState = ButtonState.loading;
@@ -35,7 +50,6 @@ class DatabaseController extends GetxController {
       btnState = ButtonState.success;
       Get.offAll(DashboardScreen());
     } else {
-      print(res);
       error = res;
       btnState = ButtonState.idle;
       // Get.snackbar("Error", res.toString(),
@@ -44,37 +58,41 @@ class DatabaseController extends GetxController {
     update();
   }
 
-  addDataFormPage() {
+  addDataFormPage(data) {
     if (pageNo.value == 0) {
+      updateFormCountryData = data;
       pageNo.value = 10;
     }
     if (pageNo.value == 1) {
+      uploadFormStoreData = data;
       pageNo.value = 11;
     }
     if (pageNo.value == 2) {
+      // print(data);
+      updateFormDealData = data;
       pageNo.value = 12;
     }
+    print(pageNo.value);
     update();
   }
 
-  updateFormPage() {
-    if (pageNo.value == 0) {
-      pageNo.value = 10;
-    }
-    if (pageNo.value == 1) {
-      pageNo.value = 11;
-    }
-    if (pageNo.value == 2) {
-      pageNo.value = 12;
-    }
-    update();
-  }
+  // updateFormPage() {
+  //   if (pageNo.value == 0) {
+  //     pageNo.value = 10;
+  //   }
+  //   if (pageNo.value == 1) {
+  //     pageNo.value = 11;
+  //   }
+  //   if (pageNo.value == 2) {
+  //     pageNo.value = 12;
+  //   }
+  //   update();
+  // }
 
   nextPage(CountryModel countryList) async {
     pageNo.value = 1;
     currentCuntry = countryList.countryName;
     // await fatchStore();
-    print(pageNo);
     update();
   }
 
@@ -82,8 +100,8 @@ class DatabaseController extends GetxController {
     pageNo.value = 2;
 
     currentStore = store.id;
+    currentStoreTitle = store.name;
     // await fatchStore();
-    print(pageNo);
     update();
   }
 
@@ -91,7 +109,6 @@ class DatabaseController extends GetxController {
     if (pageNo.value == 0) {
     } else {
       update();
-      print('${pageNo.value} ye page no hai');
       if (pageNo > 9) {
         pageNo.value = pageNo.value - 10;
       } else {
@@ -117,17 +134,18 @@ class DatabaseController extends GetxController {
   }
 
   Future<StoreList?> fatchStore() async {
-    print("fatch store run $currentCuntry");
-
     var res = await RemoteService.fatchStores(currentCuntry!);
     // print(res!.stores!.length);
     return res;
   }
 
   Future<DealsList?> fatchDeals() async {
-    print("fatch deals run");
     var res = await RemoteService.fatchDeals(currentStore!);
-    // print(res!.stores!.length);
+    print(res?.dealsList!.length);
+    for (var element in res!.dealsList!) {
+      print('${element.name!} +${element.image}');
+    }
+    print(res?.dealsList![0].image);
     return res;
   }
 
@@ -155,27 +173,44 @@ class DatabaseController extends GetxController {
   }
 
   addCountry(map) async {
+    var res;
     btnState = ButtonState.loading;
     update();
-    var res = await RemoteService.addCountry(map);
+    if (updateFormCountryData.value.countryName == null) {
+      res = await RemoteService.addCountry(map);
+    } else {
+      res = await RemoteService.updateCountry(map);
+    }
+
     btnState = ButtonState.success;
     update();
     return res;
   }
 
-  addStore(map) async {
+  addStore(map, pickedFile) async {
+    var res;
     btnState = ButtonState.loading;
     update();
-    var res = await RemoteService.addStore(map);
+    if (uploadFormStoreData.value?.logo == null) {
+      res = await RemoteService.addStore(map, pickedFile);
+    } else {
+      res = await RemoteService.updateStore(map, pickedFile);
+    }
     btnState = ButtonState.success;
     update();
     return res;
   }
 
-  addDeals(map) async {
+  addDeals(map, pickedFile) async {
+    var res;
     btnState = ButtonState.loading;
     update();
-    var res = await RemoteService.addDeals(map);
+    if (updateFormDealData.value?.image == null) {
+      res = await RemoteService.addDeals(map, pickedFile);
+    } else {
+      res = await RemoteService.updateDeals(map, pickedFile);
+    }
+
     btnState = ButtonState.success;
     update();
     return res;
@@ -184,14 +219,42 @@ class DatabaseController extends GetxController {
   uploadBanner(map) async {
     btnState = ButtonState.loading;
     update();
-    await RemoteService.uploadBannerImage(map);
-    btnState = ButtonState.idle;
+    await RemoteService.uploadImage(map, 'upload-banner');
+    btnState = ButtonState.success;
+
     update();
+    await Future.delayed(const Duration(seconds: 2), () {
+      btnState = ButtonState.idle;
+    });
+  }
+
+  Future<BannerList?> fatchBanner() async {
+    var res = await RemoteService.fatchBanner();
+    print(res?.banner?.length);
+    return res;
+  }
+
+  Future<String?> deleteBanner(bannerId) async {
+    var res = await RemoteService.deleteBanner(bannerId);
+
+    return res;
   }
 
   Future<UsersList?> fatchUsers() async {
     var res = await RemoteService.fatchUsers();
     // print(res!.stores!.length);
     return res;
+  }
+
+  Future<CarouselList?> fatchcarousel() async {
+    var res = await RemoteService.fatchCarousel();
+    print(res?.message);
+    return res;
+  }
+
+  Future<CategoriesList?> fatchCatagory() async {
+    categories = await RemoteService.fatchCatagory();
+    update();
+    return categories;
   }
 }

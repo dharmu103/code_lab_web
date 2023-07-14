@@ -13,6 +13,8 @@ class DealsModel {
   String? coupon;
   String? image;
   String? link;
+  String? lastused;
+  String? usedtimes;
   List<String?>? tags;
 
   DealsModel(
@@ -24,6 +26,8 @@ class DealsModel {
       this.arabicDescription,
       this.coupon,
       this.image,
+      this.lastused,
+      this.usedtimes,
       this.link,
       this.tags});
 

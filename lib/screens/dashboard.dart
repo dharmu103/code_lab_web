@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import '../controllers/side_menu_controller.dart';
 import '../widgets/header.dart';
 import 'database_screen.dart';
+import 'sliders_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   DashboardScreen({super.key});
@@ -18,6 +19,7 @@ class DashboardScreen extends StatelessWidget {
       const DatabaseScreen(),
       const UsersListScreen(),
       const BannerScreen(),
+      const SliderScreen()
       // const ThemeWidget()
     ];
     return Scaffold(

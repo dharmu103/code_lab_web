@@ -7,18 +7,18 @@ part of 'user_model.dart';
 // **************************************************************************
 
 UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
-      sId: json['_Id'] as String?,
-      firstName: json['first_name'] as String?,
-      lastName: json['last_name'] as String?,
+      sId: json['sId'] as String?,
+      firstName: json['firstName'] as String?,
+      lastName: json['lastName'] as String?,
       email: json['email'] as String?,
-      countryCode: json['country_code'] as String?,
-      phoneNumber: json['phone_number'] as String?,
+      countryCode: json['countryCode'] as String?,
+      phoneNumber: json['phoneNumber'] as String?,
       referrer: json['referrer'] as String?,
-      referralCode: json['referral_code'] as String?,
-      referralPoints: json['referral_points'] as int?,
-      emailVerified: json['email_verified'] as bool?,
-      phoneNumberVerified: json['phone_number_nerified'] as bool?,
-      profileImage: json['profile_image'] as String?,
+      referralCode: json['referralCode'] as String?,
+      referralPoints: json['referralPoints'] as int?,
+      emailVerified: json['emailVerified'] as bool?,
+      phoneNumberVerified: json['phoneNumberVerified'] as bool?,
+      profileImage: json['profileImage'] as String?,
       iV: json['iV'] as int?,
     );
 

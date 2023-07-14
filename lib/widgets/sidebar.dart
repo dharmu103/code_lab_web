@@ -53,6 +53,15 @@ class SideMenu extends StatelessWidget {
               },
               selected: controller.currentPage.value == 2,
             ),
+            DrawerListTile(
+              title: "Carausoul",
+              svgSrc: "assets/icons/country-5.svg",
+              press: () {
+                controller.changeIndex(3);
+                print(controller.currentPage.value);
+              },
+              selected: controller.currentPage.value == 3,
+            ),
             // DrawerListTile(
             //   title: "Theme",
             //   svgSrc: "assets/icons/menu_dashboard.svg",
