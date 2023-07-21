@@ -11,6 +11,7 @@ import '../models/carousel_list.dart';
 import '../models/country_list.dart';
 import '../models/deals_list.dart';
 import '../models/store_list.dart';
+import '../models/tags_model.dart';
 import '../models/users_list.dart';
 
 class RemoteService {
@@ -103,7 +104,6 @@ class RemoteService {
         Uri.parse("$baseUrl/auth/store?country=$country"));
 
     var resp = jsonDecode(res.body);
-    print(resp);
     if (res.statusCode == 200) {
       return StoreList.fromJson(resp);
     }
@@ -132,9 +132,7 @@ class RemoteService {
           headers: authHeader,
           // Uri.parse(baseUrl + noAuth + "/home?country=$country"),
           Uri.parse("$baseUrl/auth/deal?store=$deal"));
-      print(res.body);
       var resp = jsonDecode(res.body);
-      print(resp);
       if (res.statusCode == 200) {
         return DealsList.fromJson(resp);
       }
@@ -151,7 +149,6 @@ class RemoteService {
           headers: authHeader);
     } catch (e) {}
     var resp = jsonDecode(res!.body);
-    print(resp);
     if (res.statusCode == 200) {
       return CountryList.fromJson(resp);
     }
@@ -165,8 +162,8 @@ class RemoteService {
     //   Uri.parse(BASE_URL + '/app/' + "upload-profile-image"),
     // );
     try {
-      var request = http.MultipartRequest(
-          'POST', Uri.parse('http://54.159.201.11:3000/portal/auth/$endPoint'));
+      var request = http.MultipartRequest('POST',
+          Uri.parse('http://54.159.201.11:3000/portal/auth/upload-image'));
 
       request.files.add(http.MultipartFile(
         'file',
@@ -196,6 +193,23 @@ class RemoteService {
         "message": "Failed to upload profile image!",
       };
     }
+  }
+
+  static Future uploadBanner(map, endPoint) async {
+    var res = await uploadImage(map, endPoint);
+    print(res);
+    var newmap = {
+      "store": map["store"],
+      "country": map["country"],
+      "image": res["image_name"]
+    };
+    var resp = await http.post(
+        // Uri.parse(baseUrl + noAuth + "/home?country=$country"),
+        Uri.parse('$baseUrl/auth/create-banner'),
+        headers: authHeader,
+        body: jsonEncode(newmap));
+    // print(res.body);
+    return jsonDecode(resp.body)["message"];
   }
 
   static Future uploadImageStoreandDeal(
@@ -260,7 +274,6 @@ class RemoteService {
     if (pickedFile != null) {
       var imgres = await uploadImageStoreandDeal(pickedFile);
       // print("$map $map2");
-      print(imgres);
       map["logo"] = imgres["image_name"];
     }
     var res = await http.post(
@@ -275,7 +288,6 @@ class RemoteService {
     if (pickedFile != null) {
       var imgres = await uploadImageStoreandDeal(pickedFile);
       // print("$map $map2");
-      print(imgres);
       map["logo"] = imgres["image_name"];
     }
 
@@ -291,7 +303,6 @@ class RemoteService {
     if (pickedFile != null) {
       var imgres = await uploadImageStoreandDeal(pickedFile);
       // print("$map $map2");
-      print(imgres);
       map["image"] = imgres["image_name"];
     }
 
@@ -307,7 +318,6 @@ class RemoteService {
     if (pickedFile != null) {
       var imgres = await uploadImageStoreandDeal(pickedFile);
       // print("$map $map2");
-      print(imgres);
       map["image"] = imgres["image_name"];
     }
 
@@ -366,7 +376,7 @@ class RemoteService {
     http.Response res =
         await http.get(headers: authHeader, Uri.parse("$baseUrl/auth/banner"));
     var resp = jsonDecode(res.body);
-    // print(resp);
+    print(resp);
     if (res.statusCode == 200) {
       return BannerList.fromJson(resp);
     }
@@ -385,11 +395,13 @@ class RemoteService {
     return "Failed";
   }
 
-  static Future<CarouselList?> fatchCarousel() async {
+  static Future<CarouselList?> fatchCarousel(country) async {
     http.Response res = await http.get(
-        headers: authHeader, Uri.parse("$baseUrl/auth/carousel"));
+        headers: authHeader,
+        Uri.parse(
+            "http://54.159.201.11:3000/app/no-auth/carousel?country=$country"));
     var resp = jsonDecode(res.body);
-    print(resp);
+    // print(resp);
     if (res.statusCode == 200) {
       return CarouselList.fromJson(resp);
     } else {
@@ -403,7 +415,6 @@ class RemoteService {
         Uri.parse("$baseUrl/auth/update-carousel"),
         body: jsonEncode(map));
     var resp = jsonDecode(res.body);
-    print(resp);
     if (res.statusCode == 200) {
       return resp["message"];
     } else {
@@ -416,6 +427,7 @@ class RemoteService {
         headers: authHeader,
         Uri.parse("$baseUrl/auth/create-carousel"),
         body: jsonEncode(map));
+    return null;
   }
 
   static Future<String?> deleteCarousel(map) async {
@@ -426,15 +438,66 @@ class RemoteService {
     return jsonDecode(res.body)["message"];
   }
 
-  static Future<CategoriesList?> fatchCatagory() async {
+  static Future<TagsList?> fatchCategory() async {
     try {
       http.Response res = await http.get(
-        headers: headers,
-        Uri.parse("http://54.159.201.11:3000/app/no-auth/categories"),
+        headers: authHeader,
+        Uri.parse("http://54.159.201.11:3000/portal/auth/category/fetch"),
       );
       var resp = jsonDecode(res.body);
+      // print(resp);
+      // print(resp);
+      return TagsList.fromJson(resp);
+    } catch (e) {
+      // ignore: avoid_print
+      print(e.toString());
+      // print(e.toString());
+    }
+    return null;
+  }
+
+  static Future<String?> deleteCategory(map) async {
+    try {
+      http.Response res = await http.post(
+          headers: authHeader,
+          Uri.parse("http://54.159.201.11:3000/portal/auth/category/delete"),
+          body: jsonEncode(map));
+      var resp = jsonDecode(res.body);
       print(resp);
-      return CategoriesList.fromJson(resp);
+      return resp["message"];
+    } catch (e) {
+      // ignore: avoid_print
+      print(e.toString());
+    }
+    return null;
+  }
+
+  static Future<String?> updateCategory(map) async {
+    try {
+      http.Response res = await http.post(
+          headers: authHeader,
+          Uri.parse("http://54.159.201.11:3000/portal/auth/category/update"),
+          body: jsonEncode(map));
+      var resp = jsonDecode(res.body);
+      print(resp);
+      return resp["message"];
+    } catch (e) {
+      // ignore: avoid_print
+      print(e.toString());
+      print("error hu mai");
+    }
+    return null;
+  }
+
+  static Future<String?> createCategory(map) async {
+    try {
+      http.Response res = await http.post(
+          headers: authHeader,
+          Uri.parse("http://54.159.201.11:3000/portal/auth/category/create"),
+          body: jsonEncode(map));
+      var resp = jsonDecode(res.body);
+      print(resp);
+      return resp["message"];
     } catch (e) {
       // ignore: avoid_print
       print(e.toString());

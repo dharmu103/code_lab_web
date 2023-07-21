@@ -1,4 +1,5 @@
 import 'package:code_lab_web/screens/banner_screen.dart';
+import 'package:code_lab_web/screens/tag_screen.dart';
 import 'package:code_lab_web/screens/users_list_screen.dart';
 import 'package:code_lab_web/widgets/sidebar.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,8 @@ class DashboardScreen extends StatelessWidget {
       const DatabaseScreen(),
       const UsersListScreen(),
       const BannerScreen(),
-      const SliderScreen()
+      const SliderScreen(),
+      const TagScreen()
       // const ThemeWidget()
     ];
     return Scaffold(

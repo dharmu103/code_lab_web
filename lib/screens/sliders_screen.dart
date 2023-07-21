@@ -1,5 +1,8 @@
 import 'package:code_lab_web/controllers/banner_controller.dart';
 import 'package:code_lab_web/controllers/carousel_controller.dart';
+import 'package:code_lab_web/models/store_model.dart';
+import 'package:code_lab_web/screens/database_screen.dart';
+import 'package:code_lab_web/services/remote_services.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,6 +14,7 @@ import '../constant/constant.dart';
 import '../controllers/database_controller.dart';
 import '../models/carousel_list.dart';
 import '../models/country_model.dart';
+import '../models/store_list.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/text_fields.dart';
 
@@ -33,7 +37,7 @@ class SliderScreen extends StatelessWidget {
                   BackButton(
                     onPressed: () => _.backPage(),
                   ),
-                  Text(controller.currentCuntry ?? ""),
+                  Text(c.currentCountry.countryName ?? ""),
                   const Text(" / "),
                   Text(controller.currentStore ?? ""),
                   const Spacer(),
@@ -52,55 +56,120 @@ class SliderScreen extends StatelessWidget {
                   ),
                 ]);
               }),
+              // GetBuilder<CarouselController>(
+              //   init: CarouselController(),
+              //   initState: (_) {},
+              //   builder: (_) {
+              //     if (c.currentPage == 1) {
+              //       return const UpdateCarousel();
+              //     }
+              //     if (c.currentPage == 100) {
+              //       return const AddCarouselScreen();
+              //     }
+
+              //   },
+              // ),
               GetBuilder<CarouselController>(
                 init: CarouselController(),
                 initState: (_) {},
                 builder: (_) {
-                  if (c.currentPage == 1) {
+                  if (c.currentPage == 2) {
                     return const UpdateCarousel();
                   }
                   if (c.currentPage == 100) {
                     return const AddCarouselScreen();
                   }
-                  return FutureBuilder(
-                      future: controller.fatchcarousel(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasError) {
-                          return const Text("Error");
-                        }
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          const Center(
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 100,
-                                ),
-                                CircularProgressIndicator()
-                              ],
-                            ),
-                          );
-                        }
-                        if (snapshot.hasData) {
-                          if (snapshot.data!.carousel == null) {
-                            return const Text("No Deals Found");
+                  if (c.currentPage == 0) {
+                    return FutureBuilder<List<CountryModel>?>(
+                        future: controller.fatchCountry(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            return const Text("Error");
                           }
-                          return Row(
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            const Center(
+                              child: Column(
+                                children: [
+                                  SizedBox(
+                                    height: 100,
+                                  ),
+                                  CircularProgressIndicator()
+                                ],
+                              ),
+                            );
+                          }
+                          if (snapshot.hasData) {
+                            if (snapshot.data!.isEmpty) {
+                              return const Text("No Deals Found");
+                            }
+                            return Row(
+                              children: [
+                                countryTable2Widget(snapshot.data!)
+                                // const Spacer()
+                              ],
+                            );
+                          }
+                          return const Column(
                             children: [
-                              sliderTableWidget(snapshot.data!.carousel!),
-                              const Spacer()
+                              SizedBox(
+                                height: 100,
+                                child:
+                                    Center(child: CircularProgressIndicator()),
+                              ),
                             ],
                           );
-                        }
-                        return const Column(
-                          children: [
-                            SizedBox(
-                              height: 100,
-                              child: Center(child: CircularProgressIndicator()),
-                            ),
-                          ],
-                        );
-                      });
+                        });
+                  }
+                  if (c.currentPage == 1) {
+                    return FutureBuilder(
+                        future: controller
+                            .fatchcarousel(c.currentCountry.countryName),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            return const Text("Error");
+                          }
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            const Center(
+                              child: Column(
+                                children: [
+                                  SizedBox(
+                                    height: 100,
+                                  ),
+                                  CircularProgressIndicator()
+                                ],
+                              ),
+                            );
+                          }
+                          if (snapshot.hasData) {
+                            if (snapshot.data!.carousel!.isEmpty) {
+                              return const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text("No Carousel Found"),
+                                ],
+                              );
+                            }
+                            return Row(
+                              children: [
+                                sliderTableWidget(snapshot.data!.carousel!),
+                                const Spacer()
+                              ],
+                            );
+                          }
+                          return const Column(
+                            children: [
+                              SizedBox(
+                                height: 100,
+                                child:
+                                    Center(child: CircularProgressIndicator()),
+                              ),
+                            ],
+                          );
+                        });
+                  }
+                  return Container();
                 },
               ),
             ]));
@@ -132,7 +201,7 @@ Widget sliderTableWidget(List<Carousel?> carouselList) => SizedBox(
                       blurRadius: 0.2, spreadRadius: 0.5, color: Colors.grey)
                 ]),
             columns: const [
-              DataColumn(label: Text("Country")),
+              DataColumn(label: Text("Carousel")),
               DataColumn(label: Text("")),
             ],
             rows: List.generate(
@@ -225,12 +294,15 @@ class UpdateCarousel extends StatefulWidget {
 
 final c = Get.find<CarouselController>();
 TextEditingController headerController = TextEditingController();
+String storeName = "";
 
 class _UpdateCarouselState extends State<UpdateCarousel> {
   final _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     headerController.text = c.updatePageCarousel.header ?? "";
+
     super.initState();
   }
 
@@ -255,7 +327,7 @@ class _UpdateCarouselState extends State<UpdateCarousel> {
             builder: (_) {
               return GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, childAspectRatio: 3),
+                      crossAxisCount: 2, childAspectRatio: 2.5),
                   itemCount: (_.updatePageCarousel.images?.length ?? 0) + 1,
                   shrinkWrap: true,
                   itemBuilder: (b, index) {
@@ -265,6 +337,39 @@ class _UpdateCarouselState extends State<UpdateCarousel> {
                         child: Card(
                           child: Column(
                             children: [
+                              DropdownButtonFormField(
+                                onChanged: (v) {
+                                  print(v);
+                                  storeName = v!;
+                                },
+                                // onSaved: (v) {
+                                //   print(v);
+                                // },
+                                decoration: const InputDecoration(
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  isDense: true,
+                                  hintText: "Select Store",
+                                  border: OutlineInputBorder(
+                                      // borderRadius: BorderRadius.circular(12),
+                                      borderSide:
+                                          BorderSide(color: Colors.black45)),
+                                  focusedBorder: OutlineInputBorder(
+                                      // borderRadius: BorderRadius.circular(12),
+                                      borderSide:
+                                          BorderSide(color: Colors.black)),
+                                ),
+                                items: List.generate(
+                                    c.storeList?.stores?.length ?? 0,
+                                    (index) => DropdownMenuItem(
+                                        value: c.storeList!.stores![index].id,
+                                        child: Text(c
+                                            .storeList!.stores![index].name
+                                            .toString()))),
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
                               Expanded(
                                 child: DottedBorder(
                                   radius: const Radius.circular(8),
@@ -350,15 +455,67 @@ class _UpdateCarouselState extends State<UpdateCarousel> {
 
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Stack(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
+                          DropdownButtonFormField(
+                            onChanged: (v) {
+                              print(v);
+                              _.updatePageCarousel.images?[index].store = v;
+                            },
+                            // onSaved: (v) {
+                            //   print(v);
+                            // },
+                            decoration: InputDecoration(
+                              fillColor: Colors.white,
+                              filled: true,
+                              isDense: true,
+
+                              hintText: _.updatePageCarousel.images?[index]
+                                          .store ==
+                                      ""
+                                  ? ""
+                                  : c.storeList?.stores?.firstWhere((element) {
+                                        if (_.updatePageCarousel.images?[index]
+                                                .store !=
+                                            null) {
+                                          if (element.id ==
+                                              _.updatePageCarousel
+                                                  .images?[index].store) {
+                                            return true;
+                                          }
+                                          return false;
+                                        }
+
+                                        return false;
+                                      }).name ??
+                                      "",
+                              // '${_.updatePageCarousel.images?[index].store.toString()}',
+                              border: const OutlineInputBorder(
+                                  // borderRadius: BorderRadius.circular(12),
+                                  borderSide:
+                                      BorderSide(color: Colors.black45)),
+                              focusedBorder: const OutlineInputBorder(
+                                  // borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Colors.black)),
+                            ),
+                            items: List.generate(
+                                c.storeList?.stores?.length ?? 0,
+                                (index) => DropdownMenuItem(
+                                    value: c.storeList!.stores![index].id,
+                                    child: Text(c.storeList!.stores![index].name
+                                        .toString()))),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
                           Card(
                             child: Container(
                               decoration: const BoxDecoration(),
-                              height: 200,
                               width: Get.width,
+                              height: 150,
                               child: Image.network(
-                                '${_.updatePageCarousel.images?[index].toString()}',
+                                '${_.updatePageCarousel.images?[index].link.toString()}',
                                 fit: BoxFit.fill,
                               ),
                             ),
@@ -405,9 +562,8 @@ class _UpdateCarouselState extends State<UpdateCarousel> {
                           child: CircularProgressIndicator(),
                         ));
                         if (_.updatePageCarousel.header != null) {
-                          _.updateCarousel(
-                            headerController.text,
-                          );
+                          _.updateCarousel(headerController.text, storeName);
+                          storeName = "";
                         }
 
                         Get.back();
@@ -415,7 +571,7 @@ class _UpdateCarouselState extends State<UpdateCarousel> {
                           await Future.delayed(const Duration(seconds: 2));
                           // _.backPage();
                           _.pickedFile = null;
-                          print("name ye ${_.pickedFile?.name}");
+                          // print("name ye ${_.pickedFile?.name}");
                           _.btnState = ButtonState.idle;
                         }
                       } else {}
@@ -462,7 +618,10 @@ class _AddCarouselScreenState extends State<AddCarouselScreen> {
                   text: "Add to Db",
                   state: _.btnState,
                   onpress: () async {
-                    await _.addCarousel({"header": hController.text});
+                    await _.addCarousel({
+                      "header": hController.text,
+                      "country": _.currentCountry.countryName
+                    });
                     await Future.delayed(const Duration(seconds: 2));
                     _.backPage();
                     _.btnState = ButtonState.idle;
@@ -474,3 +633,111 @@ class _AddCarouselScreenState extends State<AddCarouselScreen> {
     );
   }
 }
+
+Widget countryTable2Widget(List<CountryModel> countryList) => SizedBox(
+      width: Get.width * 0.8,
+      // height: Get.height,
+//       child: SingleChildScrollView(
+//         scrollDirection: Axis.vertical,
+
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: DataTable(
+            border: TableBorder(
+              borderRadius: BorderRadius.circular(5),
+            ),
+            headingRowColor: MaterialStateColor.resolveWith(
+                (states) => Colors.grey.shade200),
+            headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
+            // dataRowColor: MaterialStateColor.resolveWith(
+            //     (states) => Colors.grey.shade100),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5),
+                boxShadow: const [
+                  BoxShadow(
+                      blurRadius: 0.2, spreadRadius: 0.5, color: Colors.grey)
+                ]),
+            columns: const [
+              DataColumn(label: Text("Country")),
+              DataColumn(label: Text("")),
+            ],
+            rows: List.generate(
+                countryList.length,
+                (index) => DataRow(
+                        // onLongPress: () {
+                        //   Get.find<DatabaseController>()
+                        //       .nextPage(countryList[index]);
+                        // },
+                        onSelectChanged: (v) {
+                          Get.find<CarouselController>()
+                              .nextPage(countryList[index]);
+                        },
+                        cells: [
+                          DataCell(
+                            Text(countryList[index].countryName.toString()),
+                          ),
+                          const DataCell(Row(
+                            children: [
+                              Spacer(),
+                              // IconButton(
+                              //   icon: const Icon(
+                              //     CupertinoIcons.delete,
+                              //     size: 16,
+                              //   ),
+                              //   onPressed: () async {
+                              // Get.dialog(const Center(
+                              //     child: CircularProgressIndicator()));
+                              // String? res =
+                              //     await Get.find<DatabaseController>()
+                              //         .removeCountry({
+                              //   "name": countryList[index].countryName
+                              // });
+                              // if (res == 'Success') {
+                              //   Get.back();
+                              // } else {
+                              //   Get.defaultDialog(title: "Error");
+                              // }
+                              // },
+                              // ),
+                              // PopupMenuButton(itemBuilder: (itemBuilder) {
+                              //   return [
+                              //     PopupMenuItem(
+                              //         child: ListTile(
+                              //             onTap: () {
+                              //               Get.find<DatabaseController>()
+                              //                   .addDataFormPage(
+                              //                       countryList[index].obs);
+                              //               Get.back();
+                              //             },
+                              //             title: const Text(
+                              //               "Update",
+                              //             ))),
+                              //     PopupMenuItem(
+                              //         onTap: () async {
+                              //           Get.dialog(const Center(
+                              //               child:
+                              //                   CircularProgressIndicator()));
+                              //           String? res =
+                              //               await Get.find<DatabaseController>()
+                              //                   .removeCountry({
+                              //             "name": countryList[index].countryName
+                              //           });
+                              //           if (res == 'Success') {
+                              //             Get.back();
+                              //           } else {
+                              //             Get.defaultDialog(title: "Error");
+                              //           }
+                              //         },
+                              //         child: const ListTile(
+                              //             title: Text(
+                              //           "Delete",
+                              //         )))
+                              //   ];
+                              // })
+                            ],
+                          ))
+                        ]))),
+      ),
+      // ),
+    );

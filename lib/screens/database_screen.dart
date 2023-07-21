@@ -532,7 +532,7 @@ class _AddDealFormState extends State<AddDealForm> {
   Widget build(BuildContext context) {
     final formKeyDeal = GlobalKey<FormState>();
     final _items = controller.categories?.categories!
-        .map((e) => MultiSelectItem(e.toString(), e.toString()))
+        .map((e) => MultiSelectItem(e.name.toString(), e.name.toString()))
         .toList();
     return Material(
       child: Form(

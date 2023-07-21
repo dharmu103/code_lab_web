@@ -1,18 +1,31 @@
 import 'package:code_lab_web/models/carousel_list.dart';
+import 'package:code_lab_web/screens/sliders_screen.dart';
 import 'package:code_lab_web/services/remote_services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:progress_state_button/progress_button.dart';
 
+import '../models/country_model.dart';
+import '../models/store_list.dart';
+
 class CarouselController extends GetxController {
   PlatformFile? pickedFile;
   int currentPage = 0;
+  CountryModel currentCountry = CountryModel();
   Carousel updatePageCarousel = Carousel();
   ButtonState btnState = ButtonState.idle;
-  nextPage(data) {
+  StoreList? storeList = StoreList();
+  nextPage(data) async {
     btnState = ButtonState.idle;
-    updatePageCarousel = data;
-    currentPage = 1;
+    if (currentPage == 1) {
+      updatePageCarousel = data;
+      currentPage = 2;
+    }
+    if (currentPage == 0) {
+      currentCountry = data;
+      storeList = await RemoteService.fatchStores(currentCountry.countryName!);
+      currentPage = 1;
+    }
     update();
   }
 
@@ -21,17 +34,22 @@ class CarouselController extends GetxController {
     update();
   }
 
-  updateCarousel(text) async {
+  updateCarousel(text, store) async {
     btnState = ButtonState.loading;
     update();
+    print(pickedFile?.name);
+    print("pickedFile?.name");
     if (pickedFile?.name != null) {
       var imgres = await RemoteService.uploadImageStoreandDeal(pickedFile);
       // print("$map $map2");
       // if(updatePageCarousel.images ==null){
       //   updatePageCarousel.images.first = imares[""]
       // }
-      updatePageCarousel.images?.add(imgres["image_name"]);
+      print(imgres);
+      updatePageCarousel.images
+          ?.add(Images(store: store, link: imgres["image_name"]));
     }
+    // print(updatePageCarousel.images?.last);
     pickedFile = null;
     RemoteService.updateCarousel({
       "carousel_id": updatePageCarousel.sId,

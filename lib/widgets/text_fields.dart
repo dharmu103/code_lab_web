@@ -26,3 +26,21 @@ Widget textFields(controller, hint) {
     ),
   );
 }
+
+Widget textFieldReadOnly(hint) {
+  return TextFormField(
+    readOnly: true,
+    decoration: InputDecoration(
+      fillColor: Colors.white,
+      filled: true,
+      isDense: true,
+      hintText: hint,
+      border: const OutlineInputBorder(
+          // borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.black45)),
+      focusedBorder: const OutlineInputBorder(
+          // borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.black)),
+    ),
+  );
+}

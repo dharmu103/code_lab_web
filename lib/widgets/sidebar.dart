@@ -31,7 +31,6 @@ class SideMenu extends StatelessWidget {
               selected: controller.currentPage.value == 0,
               press: () {
                 controller.changeIndex(0);
-                print(controller.currentPage.value);
               },
             ),
             const Divider(),
@@ -49,27 +48,27 @@ class SideMenu extends StatelessWidget {
               svgSrc: "assets/icons/country-5.svg",
               press: () {
                 controller.changeIndex(2);
-                print(controller.currentPage.value);
               },
               selected: controller.currentPage.value == 2,
             ),
+            const Divider(),
             DrawerListTile(
               title: "Carausoul",
               svgSrc: "assets/icons/country-5.svg",
               press: () {
                 controller.changeIndex(3);
-                print(controller.currentPage.value);
               },
               selected: controller.currentPage.value == 3,
             ),
-            // DrawerListTile(
-            //   title: "Theme",
-            //   svgSrc: "assets/icons/menu_dashboard.svg",
-            //   press: () {
-            //     controller.changeIndex(3);
-            //     print(controller.currentPage.value);
-            //   },
-            // ),
+            const Divider(),
+            DrawerListTile(
+              title: "Tags",
+              svgSrc: "assets/icons/menu_dashboard.svg",
+              press: () {
+                controller.changeIndex(4);
+              },
+              selected: controller.currentPage.value == 4,
+            ),
             // DrawerListTile(
             //   title: "Banner",
             //   svgSrc: "assets/icons/menu_tran.svg",

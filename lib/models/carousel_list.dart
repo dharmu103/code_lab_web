@@ -1,6 +1,6 @@
 class CarouselList {
   String? message;
-  List<Carousel?>? carousel;
+  List<Carousel>? carousel;
 
   CarouselList({this.message, this.carousel});
 
@@ -9,16 +9,16 @@ class CarouselList {
     if (json['carousel'] != null) {
       carousel = [];
       json['carousel'].forEach((v) {
-        carousel?.add(Carousel.fromJson(v));
+        carousel?.add(new Carousel.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['message'] = message;
-    if (carousel != null) {
-      data['carousel'] = carousel?.map((v) => v?.toJson()).toList();
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['message'] = this.message;
+    if (this.carousel != null) {
+      data['carousel'] = this.carousel?.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -26,7 +26,7 @@ class CarouselList {
 
 class Carousel {
   String? sId;
-  List<String>? images;
+  List<Images>? images;
   String? header;
   int? index;
   int? iV;
@@ -35,19 +35,45 @@ class Carousel {
 
   Carousel.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
-    images = json['images'].cast<String>();
+    if (json['images'] != null) {
+      images = [];
+      json['images'].forEach((v) {
+        images?.add(new Images.fromJson(v));
+      });
+    }
     header = json['header'];
     index = json['index'];
     iV = json['__v'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    data['_id'] = sId;
-    data['images'] = images;
-    data['header'] = header;
-    data['index'] = index;
-    data['__v'] = iV;
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['_id'] = this.sId;
+    if (this.images != null) {
+      data['images'] = this.images?.map((v) => v.toJson()).toList();
+    }
+    data['header'] = this.header;
+    data['index'] = this.index;
+    data['__v'] = this.iV;
+    return data;
+  }
+}
+
+class Images {
+  String? link;
+  String? store;
+
+  Images({this.link, this.store});
+
+  Images.fromJson(Map<String, dynamic> json) {
+    link = json['link'];
+    store = json['store'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['link'] = this.link;
+    data['store'] = this.store;
     return data;
   }
 }

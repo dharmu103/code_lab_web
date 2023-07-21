@@ -12,6 +12,7 @@ import '../models/banner_list_model.dart';
 import '../models/carousel_list.dart';
 import '../models/categoriesList.dart';
 import '../models/country_model.dart';
+import '../models/tags_model.dart';
 import '../services/remote_services.dart';
 
 class DatabaseController extends GetxController {
@@ -24,7 +25,7 @@ class DatabaseController extends GetxController {
   List<CountryModel> countryList1 = [];
   StoreList storeList = StoreList();
   String? error = '';
-  CategoriesList? categories = CategoriesList();
+  TagsList? categories = TagsList();
   String? currentCuntry;
   String? currentStore;
   String? currentStoreTitle;
@@ -219,13 +220,14 @@ class DatabaseController extends GetxController {
   uploadBanner(map) async {
     btnState = ButtonState.loading;
     update();
-    await RemoteService.uploadImage(map, 'upload-banner');
+    await RemoteService.uploadBanner(map, 'upload-banner');
     btnState = ButtonState.success;
 
     update();
     await Future.delayed(const Duration(seconds: 2), () {
       btnState = ButtonState.idle;
     });
+    update();
   }
 
   Future<BannerList?> fatchBanner() async {
@@ -246,14 +248,14 @@ class DatabaseController extends GetxController {
     return res;
   }
 
-  Future<CarouselList?> fatchcarousel() async {
-    var res = await RemoteService.fatchCarousel();
+  Future<CarouselList?> fatchcarousel(country) async {
+    var res = await RemoteService.fatchCarousel(country);
     print(res?.message);
     return res;
   }
 
-  Future<CategoriesList?> fatchCatagory() async {
-    categories = await RemoteService.fatchCatagory();
+  Future<TagsList?> fatchCatagory() async {
+    categories = await RemoteService.fatchCategory();
     update();
     return categories;
   }
