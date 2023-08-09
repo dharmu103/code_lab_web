@@ -192,9 +192,11 @@ class DatabaseController extends GetxController {
     var res;
     btnState = ButtonState.loading;
     update();
-    if (uploadFormStoreData.value?.logo == null) {
+    if (uploadFormStoreData.value?.id == null) {
+      print("2nd  add ye chala");
       res = await RemoteService.addStore(map, pickedFile);
     } else {
+      print("2nd  update ye chala");
       res = await RemoteService.updateStore(map, pickedFile);
     }
     btnState = ButtonState.success;
@@ -206,7 +208,7 @@ class DatabaseController extends GetxController {
     var res;
     btnState = ButtonState.loading;
     update();
-    if (updateFormDealData.value?.image == null) {
+    if (updateFormDealData.value?.id == null) {
       res = await RemoteService.addDeals(map, pickedFile);
     } else {
       res = await RemoteService.updateDeals(map, pickedFile);

@@ -2,6 +2,7 @@ import 'package:code_lab_web/controllers/banner_controller.dart';
 import 'package:code_lab_web/controllers/carousel_controller.dart';
 import 'package:code_lab_web/models/store_model.dart';
 import 'package:code_lab_web/screens/database_screen.dart';
+import 'package:code_lab_web/screens/tag_screen.dart';
 import 'package:code_lab_web/services/remote_services.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
@@ -294,6 +295,7 @@ class UpdateCarousel extends StatefulWidget {
 
 final c = Get.find<CarouselController>();
 TextEditingController headerController = TextEditingController();
+TextEditingController headerArabicController = TextEditingController();
 String storeName = "";
 
 class _UpdateCarouselState extends State<UpdateCarousel> {
@@ -302,7 +304,7 @@ class _UpdateCarouselState extends State<UpdateCarousel> {
   @override
   void initState() {
     headerController.text = c.updatePageCarousel.header ?? "";
-
+    headerArabicController.text = c.updatePageCarousel.headerArabic ?? "";
     super.initState();
   }
 
@@ -316,7 +318,14 @@ class _UpdateCarouselState extends State<UpdateCarousel> {
           ),
           SizedBox(
             width: Get.width,
-            child: textFields(headerController, "country name"),
+            child: textFields(headerController, "Header"),
+          ),
+          const SizedBox(
+            height: 30,
+          ),
+          SizedBox(
+            width: Get.width,
+            child: textFields(headerArabicController, "Header-Arabic"),
           ),
           const SizedBox(
             height: 30,
@@ -327,7 +336,7 @@ class _UpdateCarouselState extends State<UpdateCarousel> {
             builder: (_) {
               return GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, childAspectRatio: 2.5),
+                      crossAxisCount: 5, childAspectRatio: 0.5),
                   itemCount: (_.updatePageCarousel.images?.length ?? 0) + 1,
                   shrinkWrap: true,
                   itemBuilder: (b, index) {
@@ -371,61 +380,63 @@ class _UpdateCarouselState extends State<UpdateCarousel> {
                                 height: 20,
                               ),
                               Expanded(
-                                child: DottedBorder(
-                                  radius: const Radius.circular(8),
-                                  borderType: BorderType.RRect,
-                                  dashPattern: const [5, 5],
-                                  child: SizedBox(
-                                    height: Get.height,
-                                    child: Center(
-                                        child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        // Text("${controller.uploadFormStoreData.value?.logo} data"),
-                                        // imageLink != null
-                                        //     ? Image.network(
-                                        //         imageLink!,
-                                        //         errorBuilder: (context, error, stackTrace) {
-                                        //           return Text(imageLink!);
-                                        //         },
-                                        //       )
-                                        //     : pickedFile?.name != null
-                                        //         ? Text(pickedFile!.name)
-                                        //         : const Text("No Image"),
-                                        GetBuilder<CarouselController>(
-                                            builder: (_) {
-                                          if (_.pickedFile?.name != null) {
-                                            return Text(_.pickedFile!.name);
-                                          } else {
-                                            return const Text("No Image");
-                                          }
+                                child: Card(
+                                  child: DottedBorder(
+                                    radius: const Radius.circular(8),
+                                    borderType: BorderType.RRect,
+                                    dashPattern: const [5, 5],
+                                    child: SizedBox(
+                                      height: Get.height,
+                                      child: Center(
+                                          child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          // Text("${controller.uploadFormStoreData.value?.logo} data"),
+                                          // imageLink != null
+                                          //     ? Image.network(
+                                          //         imageLink!,
+                                          //         errorBuilder: (context, error, stackTrace) {
+                                          //           return Text(imageLink!);
+                                          //         },
+                                          //       )
+                                          //     : pickedFile?.name != null
+                                          //         ? Text(pickedFile!.name)
+                                          //         : const Text("No Image"),
+                                          GetBuilder<CarouselController>(
+                                              builder: (_) {
+                                            if (_.pickedFile?.name != null) {
+                                              return Text(_.pickedFile!.name);
+                                            } else {
+                                              return const Text("No Image");
+                                            }
 
-                                          // return pickedFile?.name != null
-                                          //     ? Text(pickedFile!.name)
-                                          //     : const Text("No Image");
-                                        }),
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
-                                        ElevatedButton(
-                                            onPressed: () async {
-                                              var obj = await FilePicker
-                                                  .platform
-                                                  .pickFiles(
-                                                withReadStream: true,
-                                              );
-                                              if (obj != null) {
-                                                setState(() {
-                                                  _.pickedFile =
-                                                      obj.files.single;
-                                                });
-                                                print(_.pickedFile!.name);
-                                              }
-                                            },
-                                            child: const Text("Select")),
-                                      ],
-                                    )),
+                                            // return pickedFile?.name != null
+                                            //     ? Text(pickedFile!.name)
+                                            //     : const Text("No Image");
+                                          }),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          ElevatedButton(
+                                              onPressed: () async {
+                                                var obj = await FilePicker
+                                                    .platform
+                                                    .pickFiles(
+                                                  withReadStream: true,
+                                                );
+                                                if (obj != null) {
+                                                  setState(() {
+                                                    _.pickedFile =
+                                                        obj.files.single;
+                                                  });
+                                                  print(_.pickedFile!.name);
+                                                }
+                                              },
+                                              child: const Text("Select")),
+                                        ],
+                                      )),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -458,62 +469,84 @@ class _UpdateCarouselState extends State<UpdateCarousel> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          DropdownButtonFormField(
-                            onChanged: (v) {
-                              print(v);
-                              _.updatePageCarousel.images?[index].store = v;
-                            },
-                            // onSaved: (v) {
-                            //   print(v);
-                            // },
-                            decoration: InputDecoration(
-                              fillColor: Colors.white,
-                              filled: true,
-                              isDense: true,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: DropdownButtonFormField(
+                                  onChanged: (v) {
+                                    print(v);
+                                    _.updatePageCarousel.images?[index].store =
+                                        v;
+                                  },
+                                  // onSaved: (v) {
+                                  //   print(v);
+                                  // },
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    isDense: true,
 
-                              hintText: _.updatePageCarousel.images?[index]
-                                          .store ==
-                                      ""
-                                  ? ""
-                                  : c.storeList?.stores?.firstWhere((element) {
-                                        if (_.updatePageCarousel.images?[index]
-                                                .store !=
-                                            null) {
-                                          if (element.id ==
-                                              _.updatePageCarousel
-                                                  .images?[index].store) {
-                                            return true;
-                                          }
-                                          return false;
-                                        }
+                                    hintText: _.updatePageCarousel
+                                                .images?[index].store ==
+                                            ""
+                                        ? ""
+                                        : c.storeList?.stores
+                                                ?.firstWhere((element) {
+                                              if (_.updatePageCarousel
+                                                      .images?[index].store !=
+                                                  null) {
+                                                if (element.id ==
+                                                    _.updatePageCarousel
+                                                        .images?[index].store) {
+                                                  return true;
+                                                }
+                                                return false;
+                                              }
 
-                                        return false;
-                                      }).name ??
-                                      "",
-                              // '${_.updatePageCarousel.images?[index].store.toString()}',
-                              border: const OutlineInputBorder(
-                                  // borderRadius: BorderRadius.circular(12),
-                                  borderSide:
-                                      BorderSide(color: Colors.black45)),
-                              focusedBorder: const OutlineInputBorder(
-                                  // borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: Colors.black)),
-                            ),
-                            items: List.generate(
-                                c.storeList?.stores?.length ?? 0,
-                                (index) => DropdownMenuItem(
-                                    value: c.storeList!.stores![index].id,
-                                    child: Text(c.storeList!.stores![index].name
-                                        .toString()))),
+                                              return false;
+                                            }).name ??
+                                            "",
+                                    // '${_.updatePageCarousel.images?[index].store.toString()}',
+                                    border: const OutlineInputBorder(
+                                        // borderRadius: BorderRadius.circular(12),
+                                        borderSide:
+                                            BorderSide(color: Colors.black45)),
+                                    focusedBorder: const OutlineInputBorder(
+                                        // borderRadius: BorderRadius.circular(12),
+                                        borderSide:
+                                            BorderSide(color: Colors.black)),
+                                  ),
+                                  items: List.generate(
+                                      c.storeList?.stores?.length ?? 0,
+                                      (index) => DropdownMenuItem(
+                                          value: c.storeList!.stores![index].id,
+                                          child: Text(c
+                                              .storeList!.stores![index].name
+                                              .toString()))),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: IconButton(
+                                    onPressed: () {
+                                      print(index);
+                                      _.deleteImageFromCarousel(
+                                          headerController.text,
+                                          headerArabicController.text,
+                                          index);
+                                    },
+                                    icon: const Icon(CupertinoIcons.delete)),
+                              )
+                            ],
                           ),
                           const SizedBox(
                             height: 20,
                           ),
                           Card(
                             child: Container(
+                              margin: const EdgeInsets.all(15),
                               decoration: const BoxDecoration(),
                               width: Get.width,
-                              height: 150,
                               child: Image.network(
                                 '${_.updatePageCarousel.images?[index].link.toString()}',
                                 fit: BoxFit.fill,
@@ -562,7 +595,8 @@ class _UpdateCarouselState extends State<UpdateCarousel> {
                           child: CircularProgressIndicator(),
                         ));
                         if (_.updatePageCarousel.header != null) {
-                          _.updateCarousel(headerController.text, storeName);
+                          _.updateCarousel(headerController.text,
+                              headerArabicController.text, storeName);
                           storeName = "";
                         }
 
@@ -595,6 +629,7 @@ class AddCarouselScreen extends StatefulWidget {
 }
 
 TextEditingController hController = TextEditingController();
+TextEditingController heaArabicController = TextEditingController();
 
 class _AddCarouselScreenState extends State<AddCarouselScreen> {
   @override
@@ -604,6 +639,13 @@ class _AddCarouselScreenState extends State<AddCarouselScreen> {
         SizedBox(
           width: 500,
           child: textFields(hController, "Header"),
+        ),
+        const SizedBox(
+          height: 30,
+        ),
+        SizedBox(
+          width: 500,
+          child: textFields(heaArabicController, "Header-Arabic"),
         ),
         const SizedBox(
           height: 30,
@@ -618,8 +660,10 @@ class _AddCarouselScreenState extends State<AddCarouselScreen> {
                   text: "Add to Db",
                   state: _.btnState,
                   onpress: () async {
+                    print(harabicController.text);
                     await _.addCarousel({
                       "header": hController.text,
+                      "header_arabic": heaArabicController.text,
                       "country": _.currentCountry.countryName
                     });
                     await Future.delayed(const Duration(seconds: 2));

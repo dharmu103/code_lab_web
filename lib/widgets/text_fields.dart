@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 Widget textFields(controller, hint) {
   return TextFormField(
     validator: (v) {
+      if (hint == 'index') {
+        if (!GetUtils.isNum(v.toString())) {
+          // print(GetUtils.isNumericOnly(v.toString()));
+          return "Only Integer Value Supported";
+        }
+      }
       if (hint == 'coupon') {
         return null;
       }

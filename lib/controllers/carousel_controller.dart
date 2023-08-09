@@ -2,6 +2,7 @@ import 'package:code_lab_web/models/carousel_list.dart';
 import 'package:code_lab_web/screens/sliders_screen.dart';
 import 'package:code_lab_web/services/remote_services.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:progress_state_button/progress_button.dart';
 
@@ -34,11 +35,24 @@ class CarouselController extends GetxController {
     update();
   }
 
-  updateCarousel(text, store) async {
+  deleteImageFromCarousel(text, textArabic, index) async {
+    Get.dialog(const Center(child: CircularProgressIndicator()));
+    updatePageCarousel.images!.removeAt(index);
+    await RemoteService.updateCarousel({
+      "carousel_id": updatePageCarousel.sId,
+      "header": text,
+      "header_arabic": textArabic,
+      "images": updatePageCarousel.images
+    });
+    Get.back();
+    update();
+  }
+
+  updateCarousel(text, textArabic, store) async {
     btnState = ButtonState.loading;
     update();
-    print(pickedFile?.name);
-    print("pickedFile?.name");
+    // print(pickedFile?.name);
+    // print("pickedFile?.name");
     if (pickedFile?.name != null) {
       var imgres = await RemoteService.uploadImageStoreandDeal(pickedFile);
       // print("$map $map2");
@@ -54,6 +68,7 @@ class CarouselController extends GetxController {
     RemoteService.updateCarousel({
       "carousel_id": updatePageCarousel.sId,
       "header": text,
+      "header_arabic": textArabic,
       "images": updatePageCarousel.images
     });
     btnState = ButtonState.success;

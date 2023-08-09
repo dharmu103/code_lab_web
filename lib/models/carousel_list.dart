@@ -28,10 +28,17 @@ class Carousel {
   String? sId;
   List<Images>? images;
   String? header;
+  String? headerArabic;
   int? index;
   int? iV;
 
-  Carousel({this.sId, this.images, this.header, this.index, this.iV});
+  Carousel(
+      {this.sId,
+      this.images,
+      this.header,
+      this.headerArabic,
+      this.index,
+      this.iV});
 
   Carousel.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -42,6 +49,7 @@ class Carousel {
       });
     }
     header = json['header'];
+    headerArabic = json['header_arabic'];
     index = json['index'];
     iV = json['__v'];
   }

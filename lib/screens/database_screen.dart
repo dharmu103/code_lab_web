@@ -118,9 +118,9 @@ class DatabaseScreen extends StatelessWidget {
                         }
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          const Center(
+                          Center(
                             child: Column(
-                              children: [
+                              children: const [
                                 SizedBox(
                                   height: 100,
                                 ),
@@ -143,7 +143,7 @@ class DatabaseScreen extends StatelessWidget {
                             ),
                           );
                         }
-                        return const Column(
+                        return Column(
                           children: [
                             SizedBox(
                               height: 100,
@@ -176,7 +176,7 @@ class DatabaseScreen extends StatelessWidget {
                           ],
                         );
                       }
-                      return const Column(
+                      return Column(
                         children: [
                           SizedBox(
                             height: 100,
@@ -201,7 +201,7 @@ class DatabaseScreen extends StatelessWidget {
                       return Container(
                           child: countryTableWidget(snapshot.data!));
                     }
-                    return const Column(
+                    return Column(
                       children: [
                         SizedBox(
                           height: 100,
@@ -312,6 +312,7 @@ class _AddStoreFormState extends State<AddStoreForm> {
   TextEditingController storenameController = TextEditingController();
   TextEditingController nameArabicController = TextEditingController();
   TextEditingController linkController = TextEditingController();
+  TextEditingController storeIndexController = TextEditingController();
   final controller = Get.find<DatabaseController>();
   @override
   void initState() {
@@ -322,6 +323,8 @@ class _AddStoreFormState extends State<AddStoreForm> {
         controller.uploadFormStoreData.value?.arabicName ?? "";
     linkController.text = controller.uploadFormStoreData.value?.link ?? "";
     imageLink = controller.uploadFormStoreData.value?.logo ?? "";
+    storeIndexController.text =
+        controller.uploadFormStoreData.value?.index.toString() ?? "";
     print(imageLink);
     print(controller.uploadFormStoreData.value?.logo);
     super.initState();
@@ -354,6 +357,13 @@ class _AddStoreFormState extends State<AddStoreForm> {
           SizedBox(
             width: 500,
             child: textFields(linkController, "link"),
+          ),
+          const SizedBox(
+            height: 30,
+          ),
+          SizedBox(
+            width: 500,
+            child: textFields(storeIndexController, "index"),
           ),
           const SizedBox(
             height: 30,
@@ -438,16 +448,25 @@ class _AddStoreFormState extends State<AddStoreForm> {
                           Get.dialog(const Center(
                             child: CircularProgressIndicator(),
                           ));
+                          print({
+                            "country": _.currentCuntry,
+                            "name": storenameController.text,
+                            "name_arabic": nameArabicController.text,
+                            "link": linkController.text,
+                            "index": int.parse(storeIndexController.text),
+                          });
                           if (controller.uploadFormStoreData.value?.name ==
                               null) {
+                            print("1st add store");
                             res = await _.addStore({
                               "country": _.currentCuntry,
                               "name": storenameController.text,
                               "name_arabic": nameArabicController.text,
                               "link": linkController.text,
-                              "tags": []
+                              "index": int.parse(storeIndexController.text),
                             }, pickedFile);
                           } else {
+                            print("1st uddate store");
                             res = await _.addStore({
                               "store_id":
                                   controller.uploadFormStoreData.value?.id,
@@ -455,7 +474,7 @@ class _AddStoreFormState extends State<AddStoreForm> {
                               "name": storenameController.text,
                               "name_arabic": nameArabicController.text,
                               "link": linkController.text,
-                              "tags": [],
+                              "index": int.parse(storeIndexController.text),
                               "logo": controller.uploadFormStoreData.value?.logo
                             }, pickedFile);
                           }
@@ -473,8 +492,8 @@ class _AddStoreFormState extends State<AddStoreForm> {
                         }
                       },
                       text: _.uploadFormStoreData.value?.logo == null
-                          ? "Add to DB"
-                          : "Update");
+                          ? "Add Store"
+                          : "Update Store");
                 },
               )),
           const SizedBox(
@@ -506,6 +525,7 @@ class _AddDealFormState extends State<AddDealForm> {
   TextEditingController desArabicController = TextEditingController();
   TextEditingController lastUsedController = TextEditingController();
   TextEditingController usedController = TextEditingController();
+  TextEditingController indexController = TextEditingController();
   final controller = Get.find<DatabaseController>();
   List<String?>? tags = [];
 
@@ -521,9 +541,12 @@ class _AddDealFormState extends State<AddDealForm> {
     desArabicController.text =
         controller.updateFormDealData.value?.arabicDescription ?? "";
     lastUsedController.text =
-        controller.updateFormDealData.value?.lastused.toString() ?? "";
-    usedController.text =
-        controller.updateFormDealData.value?.usedtimes.toString() ?? "";
+        controller.updateFormDealData.value?.lastused ?? "";
+    usedController.text = controller.updateFormDealData.value?.usedtimes ?? "";
+    indexController.text =
+        (controller.updateFormDealData.value?.index.toString() == 'null'
+            ? "0"
+            : controller.updateFormDealData.value!.index.toString());
     tags = controller.updateFormDealData.value?.tags;
     super.initState();
   }
@@ -594,6 +617,13 @@ class _AddDealFormState extends State<AddDealForm> {
             SizedBox(
               width: 500,
               child: textFields(usedController, "used times"),
+            ),
+            const SizedBox(
+              height: 30,
+            ),
+            SizedBox(
+              width: 500,
+              child: textFields(indexController, "index"),
             ),
             const SizedBox(
               height: 30,
@@ -739,6 +769,7 @@ class _AddDealFormState extends State<AddDealForm> {
                             "description_arabic": desArabicController.text,
                             "used_times": usedController.text,
                             "last_used": lastUsedController.text,
+                            "index": int.parse(indexController.text)
                           }, pickedFile);
                         } else {
                           res = await _.addDeals({
@@ -754,16 +785,19 @@ class _AddDealFormState extends State<AddDealForm> {
                             "description_arabic": desArabicController.text,
                             "used_times": usedController.text,
                             "last_used": lastUsedController.text,
+                            "index": int.parse(indexController.text)
                           }, pickedFile);
                         }
 
                         Get.back();
+                        // print(res);
+                        // print("res");
                         if (res == "Success") {
                           // await Future.delayed(const Duration(seconds: 2));
                           _.backPage();
                           _.btnState = ButtonState.idle;
 
-                          formKeyDeal.currentState!.reset();
+                          // formKeyDeal.currentState!.reset();
                         }
                       }
                     },
@@ -802,6 +836,7 @@ Widget storeTableWidget(StoreList storeList) => SizedBox(
                       blurRadius: 0.2, spreadRadius: 0.5, color: Colors.grey)
                 ]),
             columns: const [
+              DataColumn(label: Text("Index")),
               DataColumn(label: Text("Store-Logo")),
               DataColumn(label: Text("Store")),
               DataColumn(label: Text("Arabic Name")),
@@ -817,6 +852,11 @@ Widget storeTableWidget(StoreList storeList) => SizedBox(
                               .nextDealsPage(storeList.stores![index]);
                         },
                         cells: [
+                          DataCell(
+                            Text(
+                              storeList.stores![index].index.toString(),
+                            ),
+                          ),
                           DataCell(
                             Padding(
                               padding: const EdgeInsets.all(5.0),
@@ -837,8 +877,11 @@ Widget storeTableWidget(StoreList storeList) => SizedBox(
                             ),
                           ),
                           DataCell(
-                            Text(
-                              storeList.stores![index].arabicName.toString(),
+                            Container(
+                              width: 200,
+                              child: Text(
+                                storeList.stores![index].arabicName.toString(),
+                              ),
                             ),
                           ),
                           DataCell(
@@ -1048,6 +1091,7 @@ Widget dealsTableWidget(DealsList dealsList) => SizedBox(
                       blurRadius: 0.2, spreadRadius: 0.5, color: Colors.grey)
                 ]),
             columns: const [
+              DataColumn(label: Text("Index")),
               DataColumn(label: Text("Image")),
               DataColumn(label: Text("Name")),
               DataColumn(label: Text("Name Arabic")),
@@ -1073,6 +1117,11 @@ Widget dealsTableWidget(DealsList dealsList) => SizedBox(
                         // },
 
                         cells: [
+                          DataCell(
+                            Text(
+                              dealsList.dealsList![index].index.toString(),
+                            ),
+                          ),
                           DataCell(
                             Image.network(
                               dealsList.dealsList![index].image.toString(),

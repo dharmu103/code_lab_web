@@ -326,6 +326,7 @@ class RemoteService {
         Uri.parse('$baseUrl/auth/update-deal'),
         headers: authHeader,
         body: jsonEncode(map));
+    print(res.body);
     return jsonDecode(res.body)["message"];
   }
 
@@ -401,7 +402,7 @@ class RemoteService {
         Uri.parse(
             "http://54.159.201.11:3000/app/no-auth/carousel?country=$country"));
     var resp = jsonDecode(res.body);
-    // print(resp);
+    print(resp);
     if (res.statusCode == 200) {
       return CarouselList.fromJson(resp);
     } else {

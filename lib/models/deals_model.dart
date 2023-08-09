@@ -5,6 +5,7 @@ part 'deals_model.g.dart';
 @JsonSerializable()
 class DealsModel {
   String? id;
+  int? index;
   String? storeId;
   String? name;
   String? arabicName;
@@ -19,6 +20,7 @@ class DealsModel {
 
   DealsModel(
       {this.id,
+      this.index,
       this.storeId,
       this.name,
       this.arabicName,
