@@ -10,7 +10,7 @@ StoreModel _$StoreModelFromJson(Map<String, dynamic> json) => StoreModel(
       id: json['_id'] as String?,
       country: json['country'] as String?,
       name: json['name'] as String?,
-      arabicName: json['arabicName'] as String?,
+      arabicName: json['name_arabic'] as String?,
       link: json['link'] as String?,
       logo: json['logo'] as String?,
       index: json['index'] as int?,

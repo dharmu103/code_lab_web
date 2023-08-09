@@ -7,15 +7,33 @@ part of 'user_model.dart';
 // **************************************************************************
 
 UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
-      fname: json['fname'] as String?,
-      lname: json['lname'] as String?,
+      sId: json['sId'] as String?,
+      firstName: json['firstName'] as String?,
+      lastName: json['lastName'] as String?,
       email: json['email'] as String?,
-      country: json['country'] as String?,
+      countryCode: json['countryCode'] as String?,
+      phoneNumber: json['phoneNumber'] as String?,
+      referrer: json['referrer'] as String?,
+      referralCode: json['referralCode'] as String?,
+      referralPoints: json['referralPoints'] as int?,
+      emailVerified: json['emailVerified'] as bool?,
+      phoneNumberVerified: json['phoneNumberVerified'] as bool?,
+      profileImage: json['profileImage'] as String?,
+      iV: json['iV'] as int?,
     );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
-      'fname': instance.fname,
-      'lname': instance.lname,
+      'sId': instance.sId,
+      'firstName': instance.firstName,
+      'lastName': instance.lastName,
       'email': instance.email,
-      'country': instance.country,
+      'countryCode': instance.countryCode,
+      'phoneNumber': instance.phoneNumber,
+      'referrer': instance.referrer,
+      'referralCode': instance.referralCode,
+      'referralPoints': instance.referralPoints,
+      'emailVerified': instance.emailVerified,
+      'phoneNumberVerified': instance.phoneNumberVerified,
+      'profileImage': instance.profileImage,
+      'iV': instance.iV,
     };

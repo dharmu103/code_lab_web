@@ -1,4 +1,3 @@
-import 'package:code_lab_web/controllers/database_controller.dart';
 import 'package:code_lab_web/screens/auth_screen.dart';
 import 'package:code_lab_web/screens/dashboard.dart';
 import 'package:code_lab_web/services/remote_services.dart';
@@ -15,6 +14,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   checkLogin() async {
+    // RemoteService.test();
     print("splash run");
     final pref = await SharedPreferences.getInstance();
     var token = pref.getString("token");
